@@ -14,7 +14,7 @@ Les compétences techniques à connaitre pour déployer cette application sont �
 - savoir trouver l'ID d'une chaine Youtube
 - connaite le HTML et le CSS pour la personnalisation de la newsletter
 
-![NewsTUBE](./images/newsTUBE.mp4)
+![workflow_NewsTUBE](./images/workflow_NewsTUBE.png)
 
 ## Description
 
@@ -81,10 +81,6 @@ Vous pouvez également accéder aux interfaces web de YOUTUBE-DL : http://localh
 Dans N8N, importez le fichier NewsTUBE_workflow.json qui se trouve dans le répertoire workflow de votre projet.
 
 ![workflow](./images/workflow.png)
-
-Le workflow est le suivant
-
-![workflow_NewsTUBE](./images/workflow_NewsTUBE.png)
 
 #### Configurer les crédentials
 
