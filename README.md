@@ -21,7 +21,7 @@ Les compétences techniques à connaitre pour déployer cette application sont �
 4 composants principaux :
 
 - [N8N](https://github.com/n8n-io/n8n) (alternative opensource à zapier)
-- [YOUTUBE-DL](https://github.com/nbr23/youtube-dl-server) (application opensource permettant de récupérer des vidéos et de les convertir en différents formats)
+- [YOUTUBE-DL](https://github.com/nbr23/youtube-dl-server) (application opensource permettant de récupérer des vidéos pour les convertir en différents formats)
 - [WHISPER AI](https://github.com/ahmetoner/whisper-asr-webservice) (application opensource permettant de transcrire de l'audio en texte)
 - [OPEN AI CHATGPT](https://platform.openai.com/) LLM utilisé pour faire un résumé du contenu des vidéos Youtube.
 
