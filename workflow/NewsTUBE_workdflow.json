@@ -1,0 +1,975 @@
+{
+  "name": "YT-DL WORKFLOW",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "id": "2b7dd107-8fa6-4d96-a875-01bea61c5c01",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        -460,
+        760
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "video",
+        "returnAll": true,
+        "filters": {
+          "channelId": "UCfOvNb3xj28SNqPQ_JIbumg",
+          "publishedAfter": "={{\n$today.minus(\n{days: 1 }\n)\n.toISO(\n{suppressMilliseconds:true,\nincludeOffset:false }\n)+'Z'\n\n}}"
+        },
+        "options": {
+          "order": "date"
+        }
+      },
+      "id": "e6241e2d-cea3-4ef6-86f6-c9b76982eccd",
+      "name": "GetYoutubeC1",
+      "type": "n8n-nodes-base.youTube",
+      "typeVersion": 1,
+      "position": [
+        -220,
+        520
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "youTubeOAuth2Api": {
+          "id": "1",
+          "name": "YouTube account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "video",
+        "returnAll": true,
+        "filters": {
+          "channelId": "UCDq7SjbgRKty5TgGafW8Clg",
+          "publishedAfter": "={{\n$today.minus(\n{days: 1}\n)\n.toISO(\n{suppressMilliseconds:true,\nincludeOffset:false }\n)+'Z'\n\n}}"
+        },
+        "options": {
+          "order": "date"
+        }
+      },
+      "id": "ce0b25fb-74df-479d-91c6-b78650224e0f",
+      "name": "GetYoutubeC2",
+      "type": "n8n-nodes-base.youTube",
+      "typeVersion": 1,
+      "position": [
+        -220,
+        760
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "youTubeOAuth2Api": {
+          "id": "1",
+          "name": "YouTube account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "4079bfbf-629c-4efd-9459-a7da50942daf",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        20,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "video",
+        "returnAll": true,
+        "filters": {
+          "channelId": "UC55ODQSvARtgSyc8ThfiepQ",
+          "publishedAfter": "={{\n$today.minus(\n{days: 1}\n)\n.toISO(\n{suppressMilliseconds:true,\nincludeOffset:false }\n)+'Z'\n\n}}"
+        },
+        "options": {
+          "order": "date"
+        }
+      },
+      "id": "cc3168db-46c2-4ade-b387-171de01c28ff",
+      "name": "GetYoutubeC3",
+      "type": "n8n-nodes-base.youTube",
+      "typeVersion": 1,
+      "position": [
+        -220,
+        1000
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "youTubeOAuth2Api": {
+          "id": "1",
+          "name": "YouTube account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "3f8082cd-9bfd-4d67-b2d8-a8af0e49087a",
+      "name": "Merge1",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        1140
+      ],
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {},
+      "id": "f5593e59-a00e-498a-8cd7-2664c4e91e0e",
+      "name": "Merge2",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        440,
+        900
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=http://yt-dl:8080/api/downloads",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $json.url }}"
+            },
+            {
+              "name": "format",
+              "value": "251"
+            }
+          ]
+        },
+        "options": {
+          "response": {}
+        }
+      },
+      "id": "fa062678-221b-411f-acd8-bf06c9e8d9df",
+      "name": "Docker YT-DL",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        940,
+        1200
+      ]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "videoId",
+              "value": "= {{ $json.id.videoId }}"
+            },
+            {
+              "name": "url",
+              "value": "= https://youtu.be/{{ $json.id.videoId }}"
+            },
+            {
+              "name": "title",
+              "value": "= {{ ($json.snippet.title) }}"
+            },
+            {
+              "name": "thumbnails",
+              "value": "={{ $json.snippet.thumbnails.medium }}"
+            },
+            {
+              "name": "channelTitle",
+              "value": "={{ $json.snippet.channelTitle }}"
+            },
+            {
+              "name": "publishTime",
+              "value": "={{ $json.snippet.publishTime }}"
+            }
+          ],
+          "boolean": []
+        },
+        "options": {
+          "dotNotation": true
+        }
+      },
+      "name": "splitJSON",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        800,
+        900
+      ],
+      "typeVersion": 1,
+      "id": "d852dfab-7489-4501-86ca-5c6598f11210"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.id.videoId }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "b4e2f3d9-4fe6-43c2-92b9-c3a221d3589f",
+      "name": "IF NOT EMPTY",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        220,
+        760
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "video",
+        "returnAll": true,
+        "filters": {
+          "channelId": "UCPAfv1GeraR1WM0608He6ow",
+          "publishedAfter": "={{\n$today.minus(\n{days: 1}\n)\n.toISO(\n{suppressMilliseconds:true,\nincludeOffset:false }\n)+'Z'\n\n}}"
+        },
+        "options": {
+          "order": "date"
+        }
+      },
+      "id": "d572a1ed-770f-45b5-a2a2-2d331aecfb30",
+      "name": "GetYoutubeC4",
+      "type": "n8n-nodes-base.youTube",
+      "typeVersion": 1,
+      "position": [
+        -220,
+        1260
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "youTubeOAuth2Api": {
+          "id": "1",
+          "name": "YouTube account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.id.videoId }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "f0665e6b-ab5c-4ba2-bae1-fb4aeecd7f9a",
+      "name": "IF NOT EMPTY1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        220,
+        1020
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=http://whisper:9000/asr",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "audio_file",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "641e760a-8068-44c9-b3a1-15955d1ab041",
+      "name": "Docker Whisper AI",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1500,
+        1200
+      ]
+    },
+    {
+      "parameters": {
+        "fileSelector": "=/home/node/youtube-dl/*.webm"
+      },
+      "id": "1179a92d-c18e-45c1-9d2d-c0fcd8ec5fd7",
+      "name": "READ WEBM FILE",
+      "type": "n8n-nodes-base.readBinaryFiles",
+      "typeVersion": 1,
+      "position": [
+        1300,
+        1200
+      ],
+      "retryOnFail": false,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "html": "<table class=\"card\">\n  <tr>\n    <td class=\"divImage\">\n      <img class=\"thumbnail\" src=\"{{ $json.thumbnails.url }}\" alt=\"Thumbnail\">\n    </td>\n    <td class=\"details\">\n      <table>\n        <tr>\n          <td class=\"title\">\n            <h4>{{ $json.title }}</h4>\n          </td>\n        </tr>\n        <tr>\n          <td class=\"chaine\">\n            <h6>{{ $json.channelTitle }}</h6>\n          </td>\n        </tr>\n        <tr>\n          <td class=\"description\">\n            <p>{{ $json.description.replace('\"','') }}</p>\n          </td>\n        </tr>\n        <tr>\n          <td class=\"divButton\">\n            <a class=\"button\" href=\"{{ $json.url }}\" target=\"_blank\">voir la vidéo</a>\n          </td>\n        </tr>\n      </table>\n    </td>\n  </tr>\n</table>\n"
+      },
+      "id": "0376b61f-adfd-46a5-b266-67c5313b499d",
+      "name": "GENERATE HTML CARD",
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1,
+      "position": [
+        1560,
+        760
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "aggregateItems",
+        "aggregate": "aggregateAllItemData"
+      },
+      "id": "88c3e422-eda2-430d-b7ca-735be3d198a6",
+      "name": "CONCATENATE HTML CARD",
+      "type": "n8n-nodes-base.itemLists",
+      "typeVersion": 2.1,
+      "position": [
+        1780,
+        760
+      ]
+    },
+    {
+      "parameters": {
+        "html": "<!DOCTYPE html>\n<html>\n\n<head>\n    <style>\n        body {\n            font-family: Arial, sans-serif;\n            margin: 0;\n        }\n        h1 {\n          font-size: 24px;\n          margin: 0;\n          color:#7AD5C2;\n        }\n        h4 {\n            font-size: 20px;\n            font-weight: bold;\n            color: #014751;\n            margin-bottom:10px;\n        }\n        h6 {\n            font-size: 14px;\n            font-weight: bold;\n            color: #7AD5C2;\n            margin: 0;\n        }\n      a{\n        color:white;\n      }\n        .header {\n            background-color: #1E2E3E;\n            color: #7AD5C2;\n            padding: 10px;\n            width: 800px;\n            text-align: center;\n            margin:auto\n        }\n        .header-text { \n          text-align: right;\n        }\n        .header-image{\n          text-align: left;\n        }\n        .logo {\n          width: 80px;\n          height: 80px;\n        }\n        .introduction {\n          color: #1E2E3E;\n          line-height: 1.5;\n          text-align: justify;\n          width: 800px;\n          margin:20px auto;\n        }\n        .introduction-text {\n          padding: 20px;\n        }\n        .footer {\n          width: 100vw;\n          background-color: #1E2E3E;\n          color: #7AD5C2;\n          padding: 20px;\n          text-align: center;\n          width: 800px;\n          margin:auto\n        }\n        .footer-text {\n          font-size: 14px;\n        }\n        .card {\n            margin: 30px auto;\n            padding: 10px;\n            border-radius: 30px;\n            background-color: #1e2e3e1f;\n            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);\n            overflow-x: auto;\n            text-align: justify;\n            width: 800px;\n        }\n        .thumbnail {\n            width: 320px;\n            height: 180px;\n            border-radius: 20px;\n            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);\n        }\n        .details {\n          box-sizing: content-box;\n          margin: 20px;\n          display: flex; \n        }\n        .title {\n            font-size: 20px;\n            font-weight: bold;\n            color: #1E2E3E;\n            margin: 0;\n        }\n        .description {\n            font-size: 14px;\n            color: #69686D;\n            margin: 10px 0;\n            box-sizing: border-box;\n        }\n        .button {\n            padding: 10px 40px;\n            background-color: #f7f6f4;\n            color: #1E2E3E;\n            text-decoration: none;\n            border: 1px solid #1E2E3E;\n            border-radius: 30px;\n            font-family: Montserrat, helvetica, arial, sans-serif;\n            font-size: 14px;\n            font-weight: normal;\n            text-align: center;\n            transition: background-color 0.3s, color 0.3s;\n\n        }\n        .button:hover {\n            background-color: #1E2E3E;\n            color: #f7f6f4;\n          margin-top:10px;\n        }\n @media screen and (max-width: 600px) {\n  .card {\n    width: 100%;\n  }\n }\n\n\n    </style>\n</head>\n\n<body>\n    <table class=\"header\">\n      <tr>\n        <td class=\"header-image\">\n          <img class=\"logo\" src=\"https://www.byludivine.com/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flogo-ByLudivine.71a6e600.png&w=128&q=100\" alt=\"Logo\">\n        </td>\n        <td class=\"header-text\">\n          <h1>NewsTUBE</h1>\n        </td>\n      </tr>\n    </table>\n\n    <table class=\"introduction\">\n      <tr >\n        <td class=\"introduction-text\">{{ $json.message.content }} </td>\n    </tr>\n    </table>\n   {{ $jmespath($json.data, \"[*].html\") }} \n\n  <table class=\"footer\">\n  <tr >\n    <td class=\"footer-text\">\n      Réalisé par <a href=\"https://www.byludivine.com\">ByLudivine</a>\n    </td>\n  </tr>\n</table>\n</body>\n\n</html>\n\n"
+      },
+      "id": "6ba1d4be-9297-4dd0-84f2-b4f59315dc5f",
+      "name": "GENERATE HTML NEWSLETTER",
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1,
+      "position": [
+        2200,
+        840
+      ]
+    },
+    {
+      "parameters": {
+        "fileName": "=/home/node/youtube-dl/{{ $today.minus().format('dd-MM-y') }}-newsletter.html",
+        "options": {}
+      },
+      "id": "324aef1c-55ed-4abf-80fd-8684ebbcdd20",
+      "name": "WRITE HTML FILE",
+      "type": "n8n-nodes-base.writeBinaryFile",
+      "typeVersion": 1,
+      "position": [
+        2600,
+        840
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 45,
+        "unit": "seconds"
+      },
+      "id": "c4bdb0ac-2560-41b6-92a3-9f2bd7d26ae9",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        1200
+      ],
+      "webhookId": "b0f6ed00-c03f-4dd5-b903-ad74b0e04ba0"
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "model": "gpt-3.5-turbo-0613",
+        "prompt": {
+          "messages": [
+            {
+              "content": "={{ $json.data }}"
+            },
+            {
+              "role": "system",
+              "content": "Je veux que tu fasses un résumé en français en 100 caractères du texte transmis. Ce résumé doit être informatif et factuel, couvrant les aspects les plus importants du texte."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5b9ea5aa-5e2e-4c78-a5d2-db6f4480e529",
+      "name": "OpenAI",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [
+        1680,
+        1200
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "2",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByPosition",
+        "options": {}
+      },
+      "id": "6e160ae1-eae7-4751-8f3f-a9a98eeee778",
+      "name": "Merge4",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        2000,
+        840
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "sort",
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "snippet.title"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5684fd61-034a-4226-9162-fa84b71a711e",
+      "name": "Item Lists1",
+      "type": "n8n-nodes-base.itemLists",
+      "typeVersion": 2.1,
+      "position": [
+        620,
+        900
+      ],
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "boolean": [],
+          "string": [
+            {
+              "name": "description",
+              "value": "={{ $json.message.content }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "splitJSON2",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1900,
+        1200
+      ],
+      "typeVersion": 1,
+      "id": "4eab738b-322b-4771-b6b3-cf8df9ede5d3"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByPosition",
+        "options": {}
+      },
+      "id": "76cbad96-7716-475b-87cf-476e49c1c15d",
+      "name": "Merge5",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        1120,
+        760
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "prompt": {
+          "messages": [
+            {
+              "content": "={{ $jmespath($json.data, '[*].description') }}\n"
+            },
+            {
+              "role": "system",
+              "content": "Écris une introduction de newsletter de 250 caractères des sujets transmis en texte. L'introduction doit être factuel et reprendre les éléments importants des sujets."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "453695ec-32ea-4f8c-8353-8f3c1e58159d",
+      "name": "OpenAI1",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [
+        1920,
+        1000
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "2",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "boolean": [],
+          "string": [
+            {
+              "name": "description",
+              "value": "={{ $json.message.content.replace('\"','').replace('\"','') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "splitJSON3",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1500,
+        1000
+      ],
+      "typeVersion": 1,
+      "id": "a68ff87b-fb3f-4be2-a3b7-53e34a0c4cfd"
+    },
+    {
+      "parameters": {
+        "operation": "aggregateItems",
+        "aggregate": "aggregateAllItemData"
+      },
+      "id": "f1216b0a-595f-4564-a1a7-aa5d3b47e633",
+      "name": "CONCATENATE HTML CARD1",
+      "type": "n8n-nodes-base.itemLists",
+      "typeVersion": 2.1,
+      "position": [
+        1700,
+        1000
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "jsonToBinary",
+        "convertAllData": false,
+        "sourceKey": "html",
+        "options": {
+          "keepSource": true,
+          "mimeType": "text/html",
+          "useRawData": true
+        }
+      },
+      "id": "6e082fdf-c089-49e0-8a45-c4cf5bbff82f",
+      "name": "Move Binary Data1",
+      "type": "n8n-nodes-base.moveBinaryData",
+      "typeVersion": 1,
+      "position": [
+        2400,
+        840
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "votre email",
+        "subject": "NewsTube",
+        "emailType": "html",
+        "message": "={{ $json.html }}",
+        "options": {}
+      },
+      "id": "d9e44566-e4f4-48ec-aa67-35b005785a37",
+      "name": "Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        2480,
+        1100
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "3",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "command": "rm /home/node/youtube-dl/*.webm"
+      },
+      "id": "a1bdda89-6929-496a-9af9-27cc36883440",
+      "name": "Execute Command",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        2800,
+        840
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "GetYoutubeC1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "GetYoutubeC2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "GetYoutubeC3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "GetYoutubeC4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "IF NOT EMPTY",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge2": {
+      "main": [
+        [
+          {
+            "node": "Item Lists1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "splitJSON": {
+      "main": [
+        [
+          {
+            "node": "Docker YT-DL",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetYoutubeC1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetYoutubeC2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "GetYoutubeC3": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "IF NOT EMPTY1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF NOT EMPTY": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetYoutubeC4": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "IF NOT EMPTY1": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Docker YT-DL": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Docker Whisper AI": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "READ WEBM FILE": {
+      "main": [
+        [
+          {
+            "node": "Docker Whisper AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GENERATE HTML CARD": {
+      "main": [
+        [
+          {
+            "node": "CONCATENATE HTML CARD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CONCATENATE HTML CARD": {
+      "main": [
+        [
+          {
+            "node": "Merge4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "READ WEBM FILE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GENERATE HTML NEWSLETTER": {
+      "main": [
+        [
+          {
+            "node": "Move Binary Data1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "splitJSON2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "splitJSON3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Item Lists1": {
+      "main": [
+        [
+          {
+            "node": "splitJSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "splitJSON2": {
+      "main": [
+        [
+          {
+            "node": "Merge5",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge5": {
+      "main": [
+        [
+          {
+            "node": "GENERATE HTML CARD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI1": {
+      "main": [
+        [
+          {
+            "node": "Merge4",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge4": {
+      "main": [
+        [
+          {
+            "node": "GENERATE HTML NEWSLETTER",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "splitJSON3": {
+      "main": [
+        [
+          {
+            "node": "CONCATENATE HTML CARD1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CONCATENATE HTML CARD1": {
+      "main": [
+        [
+          {
+            "node": "OpenAI1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Move Binary Data1": {
+      "main": [
+        [
+          {
+            "node": "WRITE HTML FILE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WRITE HTML FILE": {
+      "main": [
+        [
+          {
+            "node": "Execute Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "2d28c939-bfe3-43cb-9095-11c4aabb8ca9",
+  "id": "1",
+  "meta": {
+    "instanceId": "8fbd3d91d1302aff4e936da0c9f4c4600197b5d4bd6fe21e8d6b4a868b13402a"
+  },
+  "tags": []
+}

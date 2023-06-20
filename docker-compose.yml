@@ -1,0 +1,59 @@
+services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n
+    container_name: n8n
+    restart: always
+    ports:
+      - "127.0.0.1:5678:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=false
+      - N8N_BASIC_AUTH_USER
+      - N8N_BASIC_AUTH_PASSWORD
+      - N8N_USER_MANAGEMENT_DISABLED
+      - N8N_HOST=${DOMAIN_NAME}
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - NODE_ENV=production
+      - WEBHOOK_URL=http://${DOMAIN_NAME}/
+      - GENERIC_TIMEZONE=${GENERIC_TIMEZONE}
+      - N8N_PAYLOAD_SIZE_MAX=64
+    volumes:
+      - ${DATA_FOLDER}/.n8n:/home/node/.n8n
+      - /local-files:/files
+      - $HOME/youtube-dl:/home/node/youtube-dl
+
+  youtube-dl:
+    image: "nbr23/youtube-dl-server:latest"
+    container_name: yt-dl
+    restart: always
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - $HOME/youtube-dl:/youtube-dl
+      - ./config-yt-dl.yml:/app_config/config.yml:ro # Overwrite the container's config file with your own configuration#  
+
+  whisper-asr-webservice:
+    container_name: whisper
+    build:
+      context: .
+      dockerfile: ./whisper/Dockerfile
+    environment:
+      - ASR_MODEL=base
+    ports:
+      - 9000:9000
+    volumes:
+      - whisper_app:/app/app
+      - cache-pip:/root/.cache/pip
+      - cache-poetry:/root/.cache/poetry
+      - cache-whisper:/root/.cache/whisper
+      - cache-faster-whisper:/root/.cache/faster_whisper
+
+volumes:
+  cache-pip:
+  cache-poetry:
+  cache-whisper:
+  cache-faster-whisper:
+  whisper_app:
+
+
+
