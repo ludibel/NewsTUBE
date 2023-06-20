@@ -149,7 +149,7 @@ Le forçage de l'installation de la dernière mise à jour corrige le problème
 
 ## Retour d'expérience
 
-- Pour éviter le recours à OPEN AI, deux LLM en local ont été testés (Llapa.cpp et Vicuna). Le CPU de la machine utilisée pour l'expérimentation (CPU core i3) n'a pas permis d'exploiter ces LLM. Un hébergement spécifique avec GPU dédié pourrait permettre l'abstraction totale à OPEN AI.
+- Pour éviter le recours à OPEN AI, deux LLM en local ont été testés (Llampa.cpp et Vicuna). Le CPU de la machine utilisée pour l'expérimentation (CPU core i3) n'a pas permis d'exploiter ces LLM. Un hébergement spécifique avec GPU dédié pourrait permettre l'abstraction totale à OPEN AI.
 
 - Un node d'attente a été paramétré à 30s pour laisser le temps à Youtube-dl de télécharger les vidéos. Si de nombreuses vidéos sont téléchargées, ce paramétrage doit être augmenté pour éviter la poursuite du workflow sans la totalité des vidéos.
 
