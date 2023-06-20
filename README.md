@@ -14,10 +14,10 @@ Les compétences techniques à connaitre pour déployer cette application sont �
 - savoir trouver l'ID d'une chaine Youtube
 - connaite le HTML et le CSS pour la personnalisation de la newsletter
 
-
-![NewsTUBE](./images/NewsTUBE.mp4)
+![NewsTUBE](./images/newsTUBE.mp4)
 
 ## Description
+
 4 composants principaux :
 
 - [N8N](https://github.com/n8n-io/n8n) (alternative opensource à zapier)
@@ -26,20 +26,22 @@ Les compétences techniques à connaitre pour déployer cette application sont �
 - [OPEN AI CHATGPT](https://platform.openai.com/) LLM utilisé pour faire un résumé du contenu des vidéos Youtube.
 
 N8N s'occupe d'orchestrer les différents process :
-* récupération des informations des vidéos youtube
-* formatage en JSON des données
-* appel API vers le container Docker YOUTUBE-DL pour téléchargement des vidéos
-* appel API vers le container Docker WHISPER AI pour transcription en txt
-* appel API vers OPENAI pour créer les résumés des txt
-* génération HTML pour la création de la newsletter NewsTUBE
-* envoi du fichier HTML de la newsletter vers GMAIL
-* suppression des fichiers vidéos récupérés
+
+- récupération des informations des vidéos youtube
+- formatage en JSON des données
+- appel API vers le container Docker YOUTUBE-DL pour téléchargement des vidéos
+- appel API vers le container Docker WHISPER AI pour transcription en txt
+- appel API vers OPENAI pour créer les résumés des txt
+- génération HTML pour la création de la newsletter NewsTUBE
+- envoi du fichier HTML de la newsletter vers GMAIL
+- suppression des fichiers vidéos récupérés
 
 En fournissant à YOUTUBE-DL l'URL de la vidéo, celui-ci se charge de sa récupération et de sa conversion. La conversion utilisée dans le cadre de ce projet est le format audio webm.
 
 WHISPER AI se charge de convertir le format audio transmis en texte. Ce process est très couteux en CPU.
 
 ## Déploiement
+
 Ce projet a été réalisé sous LINUX et n'a pas été testé sous WINDOWS. Les commandes et paramétrages ci-dessous sont propres à un système LINUX UBUNTU.
 
 ### Cloner le dépot github
@@ -53,16 +55,19 @@ git clone https://github.com/ludibel/NewsTUBE
 ### Créer le fichier des variables d'environnement
 
 Placez-vous dans le répertoire du projet et renommez le fichier des variables d'environnement .env.example en .env
+
 ```bash
 mv .env.example .env
 ```
 
 ### Déployer les containers docker
+
 ```bash
 docker-compose up
 ```
 
 ### Accéder aux applications
+
 Ouvrez votre navigateur web et rendez-vous sur http://localhost:5678
 Vous aurez accès à l'interface de N8N.
 Lors de votre première connexion, un formulaire d'enregistrement apparait. Vous pouvez passer celui-ci.
@@ -72,16 +77,16 @@ Vous pouvez également accéder aux interfaces web de YOUTUBE-DL : http://localh
 ### Paramétrage de l'application
 
 #### Insérer le worflow de l'application
-Dans N8N, importez le fichier NewsTUBE_workflow.json qui se trouve dans le répertoire workflow de votre projet.
 
+Dans N8N, importez le fichier NewsTUBE_workflow.json qui se trouve dans le répertoire workflow de votre projet.
 
 ![workflow](./images/workflow.png)
 
-Le workflow est le suivant 
+Le workflow est le suivant
 
 ![workflow_NewsTUBE](./images/workflow_NewsTUBE.png)
 
-#### Configurer les crédentials 
+#### Configurer les crédentials
 
 Pour faire fonctionner l'application, vous aurez besoin de créer 3 crédentials
 
@@ -91,39 +96,38 @@ Pour faire fonctionner l'application, vous aurez besoin de créer 3 crédentials
 - OPEN AI se paramètre sur [OPEN AI](https://openai.com/)
 
 #### Ajouter les chaines YOUTUBE
+
 Pour modifier les chaines Youtube dont vous souhaitez avoir le résumé, il faut ouvrir chaque node GetYoutube et remplacer le Channel ID par celui de la chaine souhaitée.
 
 ![node GetYoutube](./images/node_youtube.png)
 
-
 #### Modifier le template HTML
+
 Pour modifier le template HTML avec vos données (logo, titre, lien dans footer...) vous pouvez modifier le code source du node GENERATE HTML NEWSLETTER
 
 ![node Generate HTML](./images/node_generate_html_newsletter.png)
 
-
 #### Configurer l'adresse email d'envoi de la newsletter
+
 Pour recevoir la newsletter générée par email, il faut ouvir le node GMAIL et insérer votre email dans le champ : To
 
 ![node GMAIL](./images/node_gmail.png)
 
-
 ## Utilisation de l'application
 
-
-* pour activer le workflow 1 fois vous pouvez cliquer sur "execute workflow"
+- pour activer le workflow 1 fois vous pouvez cliquer sur "execute workflow"
 
 ![execute workflow](./images/execute_workflow.png)
 
-* pour déclencher le workflow automatiquement, vous devez paramétrer la fréquence dans le node Schedule Trigger
+- pour déclencher le workflow automatiquement, vous devez paramétrer la fréquence dans le node Schedule Trigger
 
 ![schedule Trigger](./images/schedule_trigger.png)
 
-* Une fois le node Schedule Trigger paramétré, vous pouvez activer le workflow
+- Une fois le node Schedule Trigger paramétré, vous pouvez activer le workflow
 
 ![activation workflow](./images/activation_workflow.png)
 
-* le répertoire $HOME/youtube-dl sert de répertoire de stockage pour les fichiers audios (qui seront supprimés une fois leur conversion en txt effectuée) et également pour le fichier HTML de la newsletter (celui ci n'est pas effacé automatiquement)
+- le répertoire $HOME/youtube-dl sert de répertoire de stockage pour les fichiers audios (qui seront supprimés une fois leur conversion en txt effectuée) et également pour le fichier HTML de la newsletter (celui ci n'est pas effacé automatiquement)
 
 ## Erreur rencontrée
 
@@ -143,20 +147,19 @@ docker exec -it yt-dl sh
 
 Le forçage de l'installation de la dernière mise à jour corrige le problème
 
-
 ## Newsletter générée
-![execute workflow](./images/newsletter.png)
 
+![execute workflow](./images/newsletter.png)
 
 ## Retour d'expérience
 
-* Pour éviter le recours à OPEN AI, deux LLM en local ont été testés (Llapa.cpp et Vicuna). Le CPU de la machine utilisée pour l'expérimentation (CPU core i3) n'a pas permis d'exploiter ces LLM. Un hébergement spécifique avec GPU dédié pourrait permettre l'abstraction totale à OPEN AI.
+- Pour éviter le recours à OPEN AI, deux LLM en local ont été testés (Llapa.cpp et Vicuna). Le CPU de la machine utilisée pour l'expérimentation (CPU core i3) n'a pas permis d'exploiter ces LLM. Un hébergement spécifique avec GPU dédié pourrait permettre l'abstraction totale à OPEN AI.
 
-* Un node d'attente a été paramétré à 30s pour laisser le temps à Youtube-dl de télécharger les vidéos. Si de nombreuses vidéos sont téléchargées, ce paramétrage doit être augmenté pour éviter la poursuite du workflow sans la totalité des vidéos.
+- Un node d'attente a été paramétré à 30s pour laisser le temps à Youtube-dl de télécharger les vidéos. Si de nombreuses vidéos sont téléchargées, ce paramétrage doit être augmenté pour éviter la poursuite du workflow sans la totalité des vidéos.
 
-* Le projet n'est pas adapté pour des vidéos de plus de 30mn. En effet, celles-ci génère un nombre de caractères supérieur à ce que peux traiter OPEN AI GPT3.5 (4k tokens). Le chunck des fichiers textes n'est pas géré au sein de cette expérimentation.
+- Le projet n'est pas adapté pour des vidéos de plus de 30mn. En effet, celles-ci génèrent un nombre de caractères supérieur à ce que peux traiter OPEN AI GPT3.5 (4k tokens). Le chunck des fichiers textes n'est pas géré au sein de cette expérimentation.
 
-* N8N est plein de subtilités pour le traitement des process et l'utilisation des nodes. Bien que ce soit un outil nocode, des compétences en développement sont souvent nécessaires.
+- N8N est plein de subtilités pour le traitement des process et l'utilisation des nodes. Bien que ce soit un outil nocode, des compétences en développement sont souvent nécessaires.
 
 ## Licence
 
